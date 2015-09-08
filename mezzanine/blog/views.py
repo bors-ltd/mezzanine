@@ -7,13 +7,15 @@ from django.contrib.auth import get_user_model
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
-from mezzanine.blog.models import BlogPost, BlogCategory
+from mezzanine.blog.models import get_post_model, BlogCategory
 from mezzanine.blog.feeds import PostsRSS, PostsAtom
 from mezzanine.conf import settings
 from mezzanine.generic.models import Keyword
 from mezzanine.utils.views import render, paginate
 
+
 User = get_user_model()
+BlogPost = get_post_model()
 
 
 def blog_post_list(request, tag=None, year=None, month=None, username=None,

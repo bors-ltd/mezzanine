@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.html import strip_tags
 
-from mezzanine.blog.models import BlogPost, BlogCategory
+from mezzanine.blog.models import get_post_model, BlogCategory
 from mezzanine.conf import settings
 from mezzanine.core.templatetags.mezzanine_tags import richtext_filters
 from mezzanine.core.request import current_request
@@ -19,6 +19,7 @@ from mezzanine.utils.sites import current_site_id
 
 
 User = get_user_model()
+BlogPost = get_post_model()
 
 
 class PostsRSS(Feed):

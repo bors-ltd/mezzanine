@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 from future.builtins import str
 
+from django.apps import apps as django_apps
 from django.db import models
+from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -9,10 +11,26 @@ from mezzanine.conf import settings
 from mezzanine.core.fields import FileField
 from mezzanine.core.models import Displayable, Ownable, RichText, Slugged
 from mezzanine.generic.fields import CommentsField, RatingField
-from mezzanine.utils.models import AdminThumbMixin, upload_to
+from mezzanine.utils.models import AdminThumbMixin, upload_to, get_post_model_name
 
 
-class BlogPost(Displayable, Ownable, RichText, AdminThumbMixin):
+def get_post_model():
+    """
+    Returns the BlogPost model that is active in this project.
+    """
+    model_name = get_post_model_name()
+
+    try:
+        return django_apps.get_model(model_name)
+    except ValueError:
+        raise ImproperlyConfigured("AUTH_USER_MODEL must be of the form 'app_label.model_name'")
+    except LookupError:
+        raise ImproperlyConfigured(
+            "AUTH_USER_MODEL refers to model '%s' that has not been installed" % settings.AUTH_USER_MODEL
+        )
+
+
+class AbstractBlogPost(Displayable, Ownable, RichText, AdminThumbMixin):
     """
     A blog post.
     """
@@ -33,6 +51,7 @@ class BlogPost(Displayable, Ownable, RichText, AdminThumbMixin):
     admin_thumb_field = "featured_image"
 
     class Meta:
+        abstract = True
         verbose_name = _("Blog post")
         verbose_name_plural = _("Blog posts")
         ordering = ("-publish_date",)
@@ -85,6 +104,12 @@ class BlogPost(Displayable, Ownable, RichText, AdminThumbMixin):
             keywords = [k.keyword for k in self.keywords.all()]
             setattr(self, "_keywords", keywords)
             return self._keywords
+
+
+class BlogPost(AbstractBlogPost):
+
+    class Meta(AbstractBlogPost.Meta):
+        swappable = 'BLOG_POST_MODEL'
 
 
 class BlogCategory(Slugged):

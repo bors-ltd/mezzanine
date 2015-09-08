@@ -75,6 +75,7 @@ from django.utils.translation import ugettext_lazy as _
 #     ),
 # )
 
+# BLOG_POST_MODEL = "blog.BlogPost"
 # Setting to turn on featured images for blog posts. Defaults to False.
 #
 # BLOG_USE_FEATURED_IMAGE = True
