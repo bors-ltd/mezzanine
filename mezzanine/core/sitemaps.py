@@ -10,7 +10,8 @@ from mezzanine.utils.sites import current_site_id
 
 blog_installed = "mezzanine.blog" in settings.INSTALLED_APPS
 if blog_installed:
-    from mezzanine.blog.models import BlogPost
+    from mezzanine.blog.models import get_post_model
+    BlogPost = get_post_model()
 
 
 class DisplayableSitemap(Sitemap):

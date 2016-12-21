@@ -29,6 +29,13 @@ def get_user_model_name():
     return getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 
+def get_post_model_name():
+    """
+    Returns the app_label.object_name string for the blog post model.
+    """
+    return getattr(settings, "BLOG_POST_MODEL", "blog.BlogPost")
+
+
 def _base_concrete_model(abstract, klass):
     for kls in reversed(klass.__mro__):
         if issubclass(kls, abstract) and not kls._meta.abstract:

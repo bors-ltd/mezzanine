@@ -12,7 +12,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.encoding import force_text
 from django.utils.html import strip_tags
 
-from mezzanine.blog.models import BlogPost, BlogCategory
+from mezzanine.blog.models import get_post_model, BlogCategory
 from mezzanine.conf import settings
 from mezzanine.core.models import CONTENT_STATUS_DRAFT
 from mezzanine.core.models import CONTENT_STATUS_PUBLISHED
@@ -21,6 +21,7 @@ from mezzanine.pages.models import RichTextPage
 from mezzanine.utils.html import decode_entities
 
 User = get_user_model()
+BlogPost = get_post_model()
 
 
 class BaseImporterCommand(BaseCommand):

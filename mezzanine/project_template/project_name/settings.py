@@ -77,8 +77,10 @@ from django.utils.translation import ugettext_lazy as _
 #     ),
 # )
 
+# Setting to override the model inheriting AbstractBlogPost
+# BLOG_POST_MODEL = "blog.BlogPost"
+
 # Setting to turn on featured images for blog posts. Defaults to False.
-#
 # BLOG_USE_FEATURED_IMAGE = True
 
 # If True, the django-modeltranslation will be added to the
