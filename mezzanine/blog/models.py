@@ -35,7 +35,7 @@ class AbstractBlogPost(Displayable, Ownable, RichText, AdminThumbMixin):
     A blog post.
     """
 
-    categories = models.ManyToManyField("BlogCategory",
+    categories = models.ManyToManyField("blog.BlogCategory",
                                         verbose_name=_("Categories"),
                                         blank=True, related_name="blogposts")
     allow_comments = models.BooleanField(verbose_name=_("Allow comments"),
