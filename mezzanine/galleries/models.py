@@ -35,13 +35,15 @@ if settings.PACKAGE_NAME_FILEBROWSER in settings.INSTALLED_APPS:
         pass
 
 
-class BaseGallery(models.Model):
+class AbstractGallery(Page, RichText):
     """
-    Base gallery functionality.
+    Page bucket for gallery photos.
     """
 
     class Meta:
         abstract = True
+        verbose_name = _("Gallery")
+        verbose_name_plural = _("Galleries")
 
     zip_import = models.FileField(verbose_name=_("Zip import"), blank=True,
         upload_to=upload_to("galleries.Gallery.zip_import", "galleries"),
@@ -53,7 +55,7 @@ class BaseGallery(models.Model):
         If a zip file is uploaded, extract any images from it and add
         them to the gallery, before removing the zip file.
         """
-        super(BaseGallery, self).save(*args, **kwargs)
+        super(AbstractGallery, self).save(*args, **kwargs)
         if self.zip_import:
             zip_file = ZipFile(self.zip_import)
             for name in zip_file.namelist():
@@ -111,26 +113,23 @@ class BaseGallery(models.Model):
                 self.zip_import.delete(save=True)
 
 
-class Gallery(Page, RichText, BaseGallery):
-    """
-    Page bucket for gallery photos.
-    """
+class Gallery(AbstractGallery):
 
-    class Meta:
-        verbose_name = _("Gallery")
-        verbose_name_plural = _("Galleries")
+    class Meta(AbstractGallery.Meta):
+        swappable = 'GALLERY_MODEL'
 
 
 @python_2_unicode_compatible
-class GalleryImage(Orderable):
+class AbstractGalleryImage(Orderable):
 
-    gallery = models.ForeignKey("Gallery", related_name="images")
+    gallery = models.ForeignKey(settings.GALLERY_MODEL, related_name="images")
     file = FileField(_("File"), max_length=200, format="Image",
         upload_to=upload_to("galleries.GalleryImage.file", "galleries"))
     description = models.CharField(_("Description"), max_length=1000,
                                                            blank=True)
 
     class Meta:
+        abstract = True
         verbose_name = _("Image")
         verbose_name_plural = _("Images")
 
@@ -152,4 +151,10 @@ class GalleryImage(Orderable):
             name = "".join([s.upper() if i == 0 or name[i - 1] == " " else s
                             for i, s in enumerate(name)])
             self.description = name
-        super(GalleryImage, self).save(*args, **kwargs)
+        super(AbstractGalleryImage, self).save(*args, **kwargs)
+
+
+class GalleryImage(AbstractGalleryImage):
+
+    class Meta(AbstractGalleryImage.Meta):
+        swappable = 'GALLERY_IMAGE_MODEL'

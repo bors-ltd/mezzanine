@@ -8,9 +8,9 @@ from django.template import Context, TemplateSyntaxError, Variable
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 
-from mezzanine.pages.models import Page
-from mezzanine.utils.urls import home_slug
 from mezzanine import template
+from mezzanine.pages import get_page_model
+from mezzanine.utils.urls import home_slug
 
 
 register = template.Library()
@@ -23,6 +23,7 @@ def page_menu(context, token):
     pages in a dict in the context when first called using parents as keys
     for retrieval on subsequent recursive calls from the menu template.
     """
+    Page = get_page_model()
     # First arg could be the menu template file name, or the parent page.
     # Also allow for both to be used.
     template_name = None

@@ -12,5 +12,7 @@ class TranslatedBlogPost(TranslatedDisplayable, TranslatedRichText):
 class TranslatedBlogCategory(TranslatedSlugged):
     fields = ()
 
+
+# XXX What about swapped models?
 translator.register(BlogCategory, TranslatedBlogCategory)
 translator.register(BlogPost, TranslatedBlogPost)

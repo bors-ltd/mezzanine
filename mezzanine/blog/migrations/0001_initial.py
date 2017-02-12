@@ -60,6 +60,7 @@ class Migration(migrations.Migration):
                 ('user', models.ForeignKey(related_name='blogposts', verbose_name='Author', to=settings.AUTH_USER_MODEL)),
             ],
             options={
+                'swappable': 'BLOG_POST_MODEL',
                 'ordering': ('-publish_date',),
                 'verbose_name': 'Blog post',
                 'verbose_name_plural': 'Blog posts',

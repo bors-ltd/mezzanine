@@ -19,7 +19,7 @@ from django.utils.translation import get_language
 from mezzanine.conf import settings
 from mezzanine.core.models import CONTENT_STATUS_PUBLISHED
 from mezzanine.core.request import current_request
-from mezzanine.pages.models import Page, RichTextPage
+from mezzanine.pages import get_page_model, get_rich_text_page_model
 from mezzanine.pages.admin import PageAdminForm
 from mezzanine.urls import PAGES_SLUG
 from mezzanine.utils.sites import override_current_site_id
@@ -27,6 +27,8 @@ from mezzanine.utils.tests import TestCase
 
 
 User = get_user_model()
+Page = get_page_model()
+RichTextPage = get_rich_text_page_model()
 
 
 class PagesTests(TestCase):

@@ -18,13 +18,18 @@ from django.utils.translation import ungettext, ugettext_lazy as _
 
 from mezzanine.conf import settings
 from mezzanine.core.admin import TabularDynamicInlineAdmin
+from mezzanine.forms import get_field_model, get_form_entry_model
+from mezzanine.forms import get_field_entry_model
 from mezzanine.forms.forms import EntriesForm
-from mezzanine.forms.models import Form, Field, FormEntry, FieldEntry
+from mezzanine.forms.models import Form
 from mezzanine.pages.admin import PageAdmin
 from mezzanine.utils.static import static_lazy as static
 from mezzanine.utils.urls import admin_url, slugify
 
 
+Field = get_field_model()
+FormEntry = get_form_entry_model()
+FieldEntry = get_field_entry_model()
 fs = FileSystemStorage(location=settings.FORMS_UPLOAD_ROOT)
 
 # Copy the fieldsets for PageAdmin and add the extra fields for FormAdmin.

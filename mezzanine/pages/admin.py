@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from mezzanine.conf import settings
 from mezzanine.core.admin import (
     ContentTypedAdmin, DisplayableAdmin, DisplayableAdminForm)
-from mezzanine.pages.models import Page, RichTextPage, Link
+from mezzanine.pages.models import Page, RichTextPage, Link, AbstractLink
 from mezzanine.utils.urls import clean_slashes
 
 
@@ -32,7 +32,7 @@ class PageAdminForm(DisplayableAdminForm):
         """
         self.instance._old_slug = self.instance.slug
         new_slug = self.cleaned_data['slug']
-        if not isinstance(self.instance, Link) and new_slug != "/":
+        if not isinstance(self.instance, AbstractLink) and new_slug != "/":
             new_slug = clean_slashes(self.cleaned_data['slug'])
         return new_slug
 

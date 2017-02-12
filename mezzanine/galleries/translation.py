@@ -10,5 +10,7 @@ class TranslatedGallery(TranslatedRichText):
 class TranslatedGalleryImage(TranslationOptions):
     fields = ('description',)
 
+
+# XXX What about swapped models?
 translator.register(Gallery, TranslatedGallery)
 translator.register(GalleryImage, TranslatedGalleryImage)

@@ -7,12 +7,12 @@ included below.
 """
 from __future__ import unicode_literals
 
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 
 from mezzanine.utils.importing import import_dotted_path
+from mezzanine.utils.models import get_swappable_model
 
 
 class ProfileNotConfigured(Exception):
@@ -25,19 +25,10 @@ def get_profile_model():
     ``settings.ACCOUNTS_PROFILE_MODEL``, or ``None`` if no profile
     model is configured.
     """
-
     if not getattr(settings, "ACCOUNTS_PROFILE_MODEL", None):
         raise ProfileNotConfigured
 
-    try:
-        return apps.get_model(settings.ACCOUNTS_PROFILE_MODEL)
-    except ValueError:
-        raise ImproperlyConfigured("ACCOUNTS_PROFILE_MODEL must be of "
-                                   "the form 'app_label.model_name'")
-    except LookupError:
-        raise ImproperlyConfigured("ACCOUNTS_PROFILE_MODEL refers to "
-                                   "model '%s' that has not been installed"
-                                   % settings.ACCOUNTS_PROFILE_MODEL)
+    return get_swappable_model("ACCOUNTS_PROFILE_MODEL")
 
 
 def get_profile_for_user(user):

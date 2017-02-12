@@ -8,7 +8,8 @@ from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.template.response import TemplateResponse
 
-from mezzanine.pages.models import Page, PageMoveException
+from mezzanine.pages import get_page_model
+from mezzanine.pages.models import PageMoveException
 from mezzanine.utils.urls import home_slug
 
 
@@ -21,6 +22,7 @@ def admin_page_ordering(request):
     def get_id(s):
         s = s.split("_")[-1]
         return int(s) if s.isdigit() else None
+    Page = get_page_model()
     page = get_object_or_404(Page, id=get_id(request.POST['id']))
     old_parent_id = page.parent_id
     new_parent_id = get_id(request.POST['parent_id'])

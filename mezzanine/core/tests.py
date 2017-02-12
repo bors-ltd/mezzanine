@@ -38,13 +38,19 @@ from mezzanine.core.fields import RichTextField
 from mezzanine.core.managers import DisplayableManager
 from mezzanine.core.models import (CONTENT_STATUS_DRAFT,
                                    CONTENT_STATUS_PUBLISHED)
+from mezzanine.forms import get_form_model
 from mezzanine.forms.admin import FieldAdmin
-from mezzanine.forms.models import Form
-from mezzanine.pages.models import Page, RichTextPage
+from mezzanine.pages import get_page_model, get_rich_text_page_model
 from mezzanine.utils.importing import import_dotted_path
+from mezzanine.utils.models import pages_installed
 from mezzanine.utils.tests import (TestCase, run_pyflakes_for_package,
                                              run_pep8_for_package)
 from mezzanine.utils.html import TagCloser
+
+
+Form = get_form_model()
+Page = get_page_model()
+RichTextPage = get_rich_text_page_model()
 
 
 class CoreTests(TestCase):
@@ -60,7 +66,7 @@ class CoreTests(TestCase):
                          "Line break<br>")
 
     @skipUnless("mezzanine.mobile" in settings.INSTALLED_APPS and
-                "mezzanine.pages" in settings.INSTALLED_APPS,
+                pages_installed(),
                 "mobile and pages apps required")
     def test_device_specific_template(self):
         """
@@ -118,8 +124,7 @@ class CoreTests(TestCase):
             self.fail("mezzanine.utils.imports.import_dotted_path"
                       "could not import \"mezzanine.core\"")
 
-    @skipUnless("mezzanine.pages" in settings.INSTALLED_APPS,
-                "pages app required")
+    @skipUnless(pages_installed(), "pages app required")
     def test_description(self):
         """
         Test generated description is text version of the first line
@@ -130,8 +135,7 @@ class CoreTests(TestCase):
                                            content=description * 3)
         self.assertEqual(page.description, strip_tags(description))
 
-    @skipUnless("mezzanine.pages" in settings.INSTALLED_APPS,
-                "pages app required")
+    @skipUnless(pages_installed(), "pages app required")
     def test_draft(self):
         """
         Test a draft object as only being viewable by a staff member.
@@ -154,8 +158,7 @@ class CoreTests(TestCase):
         manager = DisplayableManager(search_fields={'foo': 10})
         self.assertTrue(manager._search_fields)
 
-    @skipUnless("mezzanine.pages" in settings.INSTALLED_APPS,
-                "pages app required")
+    @skipUnless(pages_installed(), "pages app required")
     def test_search(self):
         """
         Objects with status "Draft" should not be within search results.
@@ -217,8 +220,7 @@ class CoreTests(TestCase):
         response = self.client.get(pages[0].get_absolute_url(), follow=True)
         self.assertEqual(response.status_code, code)
 
-    @skipUnless("mezzanine.pages" in settings.INSTALLED_APPS,
-                "pages app required")
+    @skipUnless(pages_installed(), "pages app required")
     def test_multisite(self):
         from django.conf import settings
 
@@ -316,8 +318,7 @@ class CoreTests(TestCase):
             action = response.request['PATH_INFO']
         return action
 
-    @skipUnless('mezzanine.pages' in settings.INSTALLED_APPS,
-                'pages app required')
+    @skipUnless(pages_installed(), "pages app required")
     @override_settings(LANGUAGE_CODE="en")
     def test_password_reset(self):
         """
@@ -491,8 +492,7 @@ class SubclassMiddleware(FetchFromCacheMiddleware):
     pass
 
 
-@skipUnless("mezzanine.pages" in settings.INSTALLED_APPS,
-            "pages app required")
+@skipUnless(pages_installed(), "pages app required")
 class SiteRelatedTestCase(TestCase):
 
     def test_update_site(self):

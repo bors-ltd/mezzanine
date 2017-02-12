@@ -15,6 +15,8 @@ class TranslatedRichTextPage(TranslatedRichText):
 class TranslatedLink(TranslationOptions):
     fields = ()
 
+
+# XXX What about swapped models?
 translator.register(Page, TranslatedPage)
 translator.register(RichTextPage, TranslatedRichTextPage)
 translator.register(Link, TranslatedLink)

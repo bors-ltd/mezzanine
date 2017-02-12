@@ -10,5 +10,7 @@ class TranslatedForm(TranslatedRichText):
 class TranslatedField(TranslationOptions):
     fields = ('label', 'choices', 'default', 'placeholder_text', 'help_text',)
 
+
+# XXX What about swapped models?
 translator.register(Form, TranslatedForm)
 translator.register(Field, TranslatedField)

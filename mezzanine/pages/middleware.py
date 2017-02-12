@@ -5,8 +5,7 @@ from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpResponse, Http404
 
 from mezzanine.conf import settings
-from mezzanine.pages import context_processors, page_processors
-from mezzanine.pages.models import Page
+from mezzanine.pages import context_processors, page_processors, get_page_model
 from mezzanine.pages.views import page as page_view
 from mezzanine.utils.deprecation import MiddlewareMixin, get_middleware_setting
 from mezzanine.utils.importing import import_dotted_path
@@ -71,6 +70,7 @@ class PageMiddleware(MiddlewareMixin):
         # Load the closest matching page by slug, and assign it to the
         # request object. If none found, skip all further processing.
         slug = path_to_slug(request.path_info)
+        Page = get_page_model()
         pages = Page.objects.with_ascendants_for_slug(slug,
                         for_user=request.user, include_login_required=True)
         if pages:

@@ -4,12 +4,15 @@ from django.shortcuts import redirect
 from django.template import RequestContext
 
 from mezzanine.conf import settings
+from mezzanine.forms import get_form_model
 from mezzanine.forms.forms import FormForForm
-from mezzanine.forms.models import Form
 from mezzanine.forms.signals import form_invalid, form_valid
 from mezzanine.pages.page_processors import processor_for
 from mezzanine.utils.email import split_addresses, send_mail_template
 from mezzanine.utils.views import is_spam
+
+
+Form = get_form_model()
 
 
 def format_value(value):
@@ -22,6 +25,7 @@ def format_value(value):
     return value
 
 
+# XXX The swapped model may not be ready at this level
 @processor_for(Form)
 def form_processor(request, page):
     """

@@ -8,12 +8,14 @@ from django.shortcuts import get_object_or_404
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.html import strip_tags
 
-from mezzanine.blog.models import BlogPost, BlogCategory
+from mezzanine.blog import get_post_model, get_category_model
 from mezzanine.conf import settings
 from mezzanine.core.templatetags.mezzanine_tags import richtext_filters
 from mezzanine.core.request import current_request
 from mezzanine.generic.models import Keyword
+from mezzanine.pages import get_page_model
 from mezzanine.utils.html import absolute_urls
+from mezzanine.utils.models import pages_installed
 from mezzanine.utils.sites import current_site_id
 
 
@@ -43,8 +45,8 @@ class PostsRSS(Feed):
         super(PostsRSS, self).__init__(*args, **kwargs)
         self._public = True
         page = None
-        if "mezzanine.pages" in settings.INSTALLED_APPS:
-            from mezzanine.pages.models import Page
+        if pages_installed():
+            Page = get_page_model()
             try:
                 page = Page.objects.published().get(slug=settings.BLOG_SLUG)
             except Page.DoesNotExist:
@@ -79,12 +81,14 @@ class PostsRSS(Feed):
     def items(self):
         if not self._public:
             return []
+        BlogPost = get_post_model()
         blog_posts = BlogPost.objects.published().select_related("user"
             ).prefetch_related("categories")
         if self.tag:
             tag = get_object_or_404(Keyword, slug=self.tag)
             blog_posts = blog_posts.filter(keywords__keyword=tag)
         if self.category:
+            BlogCategory = get_category_model()
             category = get_object_or_404(BlogCategory, slug=self.category)
             blog_posts = blog_posts.filter(categories=category)
         if self.username:
@@ -105,6 +109,7 @@ class PostsRSS(Feed):
     def categories(self):
         if not self._public:
             return []
+        BlogCategory = get_category_model()
         return BlogCategory.objects.all()
 
     def feed_url(self):

@@ -4,12 +4,14 @@ from datetime import datetime
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Q
 
+from mezzanine.blog import get_post_model, get_category_model
 from mezzanine.blog.forms import BlogPostForm
-from mezzanine.blog.models import BlogPost, BlogCategory
 from mezzanine.generic.models import Keyword
 from mezzanine import template
 
 User = get_user_model()
+BlogPost = get_post_model()
+BlogCategory = get_category_model()
 
 register = template.Library()
 

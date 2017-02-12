@@ -4,6 +4,7 @@ import warnings
 
 from future.utils import with_metaclass
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model as django_get_user_model
 from django.core.exceptions import ImproperlyConfigured
@@ -27,6 +28,45 @@ def get_user_model_name():
     Returns the app_label.object_name string for the user model.
     """
     return getattr(settings, "AUTH_USER_MODEL", "auth.User")
+
+
+def get_model(model_name, setting_name):
+    """
+    Returns the model by its "app_label.object_name" reference.
+    """
+    try:
+        return apps.get_model(model_name)
+    except ValueError:
+        raise ImproperlyConfigured(
+            "%s must be of the form 'app_label.model_name'" % setting_name
+        )
+    except LookupError:
+        raise ImproperlyConfigured(
+            "%s refers to model '%s' that has not been installed" % (
+                setting_name, model_name
+            )
+        )
+
+
+def get_swappable_model(setting_name):
+    try:
+        model_name = getattr(settings, setting_name)
+    except AttributeError:
+        raise ImproperlyConfigured
+    return get_model(model_name, setting_name)
+
+
+def pages_installed():
+    """Detects any of the vanilla pages app or a complete replacement."""
+    # XXX Cannot import models yet
+    return "mezzanine.pages" in settings.INSTALLED_APPS
+
+
+def blog_installed():
+    """Detects any of the vanilla blog app or a complete replacement."""
+    # Assumes you want the "blog" feature if you customized the models
+    # XXX Cannot import models yet
+    return "mezzanine.blog" in settings.INSTALLED_APPS
 
 
 def _base_concrete_model(abstract, klass):

@@ -20,34 +20,24 @@ from mezzanine.pages.managers import PageManager
 from mezzanine.utils.urls import path_to_slug
 
 
-class BasePage(Orderable, Displayable):
-    """
-    Exists solely to store ``PageManager`` as the main manager.
-    If it's defined on ``Page``, a concrete model, then each
-    ``Page`` subclass loses the custom manager.
-    """
-
-    objects = PageManager()
-
-    class Meta:
-        abstract = True
-
-
 @python_2_unicode_compatible
-class Page(BasePage, ContentTyped):
+class AbstractPage(Orderable, Displayable, ContentTyped):
     """
     A page in the page tree. This is the base class that custom content types
     need to subclass.
     """
 
-    parent = models.ForeignKey("Page", blank=True, null=True,
+    parent = models.ForeignKey(settings.PAGE_MODEL, blank=True, null=True,
         related_name="children")
     in_menus = MenusField(_("Show in menus"), blank=True, null=True)
     titles = models.CharField(editable=False, max_length=1000, null=True)
     login_required = models.BooleanField(_("Login required"), default=False,
         help_text=_("If checked, only logged in users can view this page"))
 
+    objects = PageManager()
+
     class Meta:
+        abstract = True
         verbose_name = _("Page")
         verbose_name_plural = _("Pages")
         ordering = ("titles",)
@@ -84,7 +74,7 @@ class Page(BasePage, ContentTyped):
             titles.insert(0, parent.title)
             parent = parent.parent
         self.titles = " / ".join(titles)
-        super(Page, self).save(*args, **kwargs)
+        super(AbstractPage, self).save(*args, **kwargs)
 
     def description_from_content(self):
         """
@@ -93,10 +83,12 @@ class Page(BasePage, ContentTyped):
         ``Page`` instance, so that all fields defined on the subclass
         are available for generating the description.
         """
+        from mezzanine.pages import get_page_model
+        Page = get_page_model()
         if self.__class__ == Page:
             if self.content_model:
                 return self.get_content_model().description_from_content()
-        return super(Page, self).description_from_content()
+        return super(AbstractPage, self).description_from_content()
 
     def get_ascendants(self, for_user=None):
         """
@@ -116,6 +108,8 @@ class Page(BasePage, ContentTyped):
             if self.slug:
                 kwargs = {"for_user": for_user}
                 with override_current_site_id(self.site_id):
+                    from mezzanine.pages import get_page_model
+                    Page = get_page_model()
                     pages = Page.objects.with_ascendants_for_slug(self.slug,
                                                                   **kwargs)
                 self._ascendants = pages[0]._ascendants
@@ -135,7 +129,7 @@ class Page(BasePage, ContentTyped):
         """
         Recursively build the slug from the chain of parents.
         """
-        slug = super(Page, self).get_slug()
+        slug = super(AbstractPage, self).get_slug()
         if self.parent is not None:
             return "%s/%s" % (self.parent.slug, slug)
         return slug
@@ -146,6 +140,8 @@ class Page(BasePage, ContentTyped):
         start with this page's slug.
         """
         slug_prefix = "%s/" % self.slug
+        from mezzanine.pages import get_page_model
+        Page = get_page_model()
         for page in Page.objects.filter(slug__startswith=slug_prefix):
             if not page.overridden():
                 page.slug = new_slug + page.slug[len(self.slug):]
@@ -269,26 +265,46 @@ class Page(BasePage, ContentTyped):
         return None
 
 
-class RichTextPage(Page, RichText):
+class Page(AbstractPage):
+
+    class Meta(AbstractPage.Meta):
+        swappable = 'PAGE_MODEL'
+
+
+class AbstractRichTextPage(Page, RichText):
     """
     Implements the default type of page with a single Rich Text
     content field.
     """
 
-    class Meta:
+    class Meta(Page.Meta):
+        abstract = True
         verbose_name = _("Rich text page")
         verbose_name_plural = _("Rich text pages")
 
 
-class Link(Page):
+class RichTextPage(AbstractRichTextPage):
+
+    class Meta(AbstractRichTextPage.Meta):
+        swappable = 'RICH_TEXT_PAGE_MODEL'
+
+
+class AbstractLink(Page):
     """
     A general content type for creating external links in the page
     menu.
     """
 
-    class Meta:
+    class Meta(Page.Meta):
+        abstract = True
         verbose_name = _("Link")
         verbose_name_plural = _("Links")
+
+
+class Link(AbstractLink):
+
+    class Meta(AbstractLink.Meta):
+        swappable = 'LINK_MODEL'
 
 
 class PageMoveException(Exception):

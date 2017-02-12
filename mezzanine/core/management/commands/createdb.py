@@ -10,6 +10,7 @@ from django.core.management import call_command
 from django.db import connection
 
 from mezzanine.conf import settings
+from mezzanine.galleries import get_gallery_model
 from mezzanine.utils.tests import copy_test_to_media
 
 
@@ -115,7 +116,7 @@ class Command(BaseCommand):
             if self.verbosity >= 1:
                 print("\nCreating demo pages: About us, Contact form, "
                         "Gallery ...\n")
-            from mezzanine.galleries.models import Gallery
+            Gallery = get_gallery_model()
             call_command("loaddata", "mezzanine_optional.json")
             zip_name = "gallery.zip"
             copy_test_to_media("mezzanine.core", zip_name)
